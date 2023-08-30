@@ -4,14 +4,14 @@
 | ----------- | ---------------------- |
 | TeamID      |        Team-100        |
 | TeamName    |         Century        |
-| Captain     |                        |
-| Captain     |                        |
+| Captain     |   Divyansh Jain        |
+| Captain     |  dj12@illinois.edu     |
 | Member1     |       Meghna Gaddam    |
 | Member1     | meghnag2@illinois.edu  |
-| Member2     |                        |
-| Member2     |                        |
-| Member3     |                        |
-| Member3     |                        |
+| Member2     |  Dhruv Bhojnagarwala   |
+| Member2     |   dhruv5@illinois.edu  |
+| Member3     |     Vinit Gupta        |
+| Member3     |     vinitg2            |
 
 ## Project Information
 
