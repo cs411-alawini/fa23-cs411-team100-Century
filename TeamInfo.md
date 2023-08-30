@@ -11,7 +11,7 @@
 | Member2     |  Dhruv Bhojnagarwala   |
 | Member2     |   dhruv5@illinois.edu  |
 | Member3     |     Vinit Gupta        |
-| Member3     |     vinitg2            |
+| Member3     |  vinitg2@illinois.edu  |
 
 ## Project Information
 
