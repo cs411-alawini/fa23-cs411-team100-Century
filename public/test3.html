@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Button Example</title>
+  </head>
+  <body>
+    <button id="fetchButton">Fetch Top Answers</button>
+    <div id="results"></div>
+
+    <script>
+      // Function to handle the API call when the button is clicked
+      document
+        .getElementById("fetchButton")
+        .addEventListener("click", function () {
+          fetch("/top_answers") // Assuming this endpoint is on the same domain
+            .then((response) => response.json())
+            .then((data) => {
+              // Handle the received data
+              const resultsDiv = document.getElementById("results");
+              resultsDiv.innerHTML = ""; // Clear previous results
+
+              // Display the results in the 'results' div
+              const resultSet = data.result;
+              const totalCount = data.totalCount;
+
+              // Show total count
+              resultsDiv.innerHTML += `<p>Total Count: ${totalCount}</p>`;
+
+              // Display each result entry
+
+              // Create an unordered list element
+              const list = document.createElement("ul");
+
+              // Append list items for each entry except the last one
+              resultSet.slice(0, -1).forEach((entry) => {
+                if (entry[0].a_body) {
+                  // Create a list item element
+                  const listItem = document.createElement("li");
+
+                  // Construct the content for the list item
+                  const content = `
+                              <p>${entry[0].a_body}</p>
+                              <p>Creation Date: ${entry[0].a_creation_date}</p>
+                            `;
+
+                  // Set the content as HTML within the list item
+                  listItem.innerHTML = content;
+
+                  // Append the list item to the unordered list
+                  list.appendChild(listItem);
+                }
+              });
+
+              // Append the unordered list to the resultsDiv
+              resultsDiv.appendChild(list);
+
+              // const list = document.createElement("ul");
+
+              // // Append list items for each entry except the last one
+              // resultSet.slice(0, -1).forEach((entry) => {
+              //   if (entry[0].a_body) {
+              //     // Create a list item element
+              //     const listItem = document.createElement("li");
+              //     listItem.innerHTML = entry[0].a_body; // Set the text content as the body of the entry
+
+              //     // Append the list item to the unordered list
+              //     list.appendChild(listItem);
+              //   }
+              // });
+
+              // // Append the unordered list to the resultsDiv
+              // resultsDiv.appendChild(list);
+
+              // resultSet.forEach((entry) => {
+              //   console.log(entry[0].a_body);
+              //   if (entry[0].a_body) {
+              //     resultsDiv.innerHTML += `<p>${entry[0].a_body}</p>`;
+              //   }
+              // });
+            })
+            .catch((error) => {
+              console.error("Error fetching top answers:", error);
+              // Handle error if the API call fails
+              const resultsDiv = document.getElementById("results");
+              resultsDiv.innerHTML = "<p>Error fetching top answers</p>";
+            });
+        });
+    </script>
+  </body>
+</html>
