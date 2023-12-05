@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Question Details</title>
+    <!-- Add your CSS and other styles here -->
+  </head>
+  <body>
+    <h1>Question Details</h1>
+    <div id="questionDetails">
+      <h2 id="questionTitle"></h2>
+      <div id="questionBody"></div>
+      <button onclick="likeQuestion()">Like Question</button>
+      <button onclick="deleteQuestion()">Delete Question</button>
+      <p id="deleteError" style="color: red; display: none">
+        Unauthorized to delete this question
+      </p>
+      <p>Asked by: <span id="questionUser"></span></p>
+      <!-- Container for user's reputation -->
+      <p>User Reputation: <span id="userReputation"></span></p>
+      <!-- Display user's reputation -->
+      <h3>Answers</h3>
+      <div id="answerContainer">
+        <p id="currentAnswer"></p>
+        <button onclick="showPreviousAnswer()">Previous</button>
+        <button onclick="showNextAnswer()">Next</button>
+      </div>
+      <!-- Add this form to your questionDetails.html where you want the answer submission to appear -->
+<form id="answerForm">
+  <textarea id="answerText" placeholder="Type your answer here..."></textarea>
+  <button type="submit">Submit Answer</button>
+</form>
+
+<script>
+  // Function to submit an answer
+  function submitAnswer(questionId, answerText) {
+    fetch(`/post-answer/${questionId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ answerText: answerText })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      // Do something after answer is submitted, like clearing the form or reloading parts of the page
+    })
+    .catch((error) => {
+      console.error('Error submitting answer:', error);
+    });
+  }
+
+  // Event listener for the answer form submission
+  document.getElementById('answerForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+    const answerText = document.getElementById('answerText').value;
+    // Call the submitAnswer function with the questionId retrieved from URL params and the answer text
+    submitAnswer(questionId, answerText);
+  });
+</script>
+
+      <h3>Comments</h3>
+      <ul id="commentList"></ul>
+    </div>
+
+    <script>
+      let currentAnswerIndex = 0;
+      let answers = [];
+
+      // Function to fetch question details by ID
+      function fetchQuestionDetails(questionId) {
+        fetch(`/question-details?id=${questionId}`)
+          .then((response) => response.json())
+          .then((questionDetails) => {
+            const questionTitleElement =
+              document.getElementById("questionTitle");
+            const questionBodyElement = document.getElementById("questionBody");
+            const commentListElement = document.getElementById("commentList");
+            //////////////
+            const questionUserElement = document.getElementById("questionUser");
+            const userReputationElement =
+              document.getElementById("userReputation");
+            //////////////
+            questionTitleElement.textContent = questionDetails.question_title;
+            questionBodyElement.innerHTML = questionDetails.question_body;
+            questionUserElement.textContent = questionDetails.username; // Display the user's name
+            userReputationElement.textContent = questionDetails.user_reputation; // Display the user's reputation
+
+            answers = questionDetails.answers.split("]");
+            showAnswer(currentAnswerIndex);
+
+            const comments = questionDetails.comments.split("]");
+            comments.forEach((comment) => {
+              const commentItem = document.createElement("li");
+              commentItem.textContent = comment; // Use innerHTML to render HTML content
+              commentListElement.appendChild(commentItem);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching question details:", error);
+            // Handle the error, display an error message, etc.
+          });
+      }
+
+      function showAnswer(index) {
+        const currentAnswerElement = document.getElementById("currentAnswer");
+        if (index >= 0 && index < answers.length) {
+          currentAnswerElement.innerHTML = answers[index];
+        } else {
+          currentAnswerElement.innerHTML = "No more answers";
+        }
+      }
+
+      function deleteQuestion() {
+        fetch(`/questions/${questionId}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.ok) {
+              // If the question is successfully deleted, redirect the user to a different page
+              window.location.href = "/index.html"; // Change this to your desired redirect URL
+            } else if (response.status === 403) {
+              // If the user is unauthorized, show the error message
+              const deleteError = document.getElementById("deleteError");
+              deleteError.style.display = "block";
+            } else {
+              console.error("Failed to delete the question");
+              // Handle other errors or display an error message
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting the question:", error);
+            // Handle error or display an error message
+          });
+      }
+
+      function showNextAnswer() {
+        currentAnswerIndex++;
+        showAnswer(currentAnswerIndex);
+      }
+
+      function showPreviousAnswer() {
+        currentAnswerIndex--;
+        showAnswer(currentAnswerIndex);
+      }
+      function likeQuestion() {
+        // Send a POST request to your server to like the question
+        fetch(`/like-question/${questionId}`, {
+          method: "POST",
+        })
+          .then((response) => {
+            if (response.ok) {
+              // If the request is successful, update the UI and reputation count
+              updateReputation();
+            } else {
+              console.error("Failed to like the question");
+              // Handle error or display an error message
+            }
+          })
+          .catch((error) => {
+            console.error("Error liking the question:", error);
+            // Handle error or display an error message
+          });
+      }
+
+      function updateReputation() {
+        // Fetch the updated reputation values for the question and update the UI
+        fetch(`/question-details?id=${questionId}`)
+          .then((response) => response.json())
+          .then((questionDetails) => {
+            // Update question reputation in the UI
+            const questionReputationElement =
+              document.getElementById("questionReputation");
+            questionReputationElement.textContent =
+              questionDetails.question_reputation; // Use the actual property name from your server response
+
+            // Other reputation updates for answers, comments, etc. can be handled similarly
+          })
+          .catch((error) => {
+            console.error("Error updating reputation:", error);
+            // Handle error or display an error message
+          });
+      }
+
+      // let currentAnswerIndex = 0;
+      // let answers = []; // Array to hold answers
+
+      // function updateReputation() {
+      //   // Fetch the reputation values for the question, answers, and comments from the server
+      //   // Update the corresponding elements in the HTML with the retrieved reputation values
+      // }
+
+      // Extract the question ID from the URL query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const questionId = urlParams.get("id");
+
+      // Call the fetchQuestionDetails function with the extracted question ID
+      fetchQuestionDetails(questionId);
+    </script>
+  </body>
+</html>
